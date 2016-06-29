@@ -85,11 +85,11 @@ class InvalidTestRunError(Exception):
 
 
 # pylint: disable=invalid-name
-def _PopulateHeader(record, testrun):
+def _populate_header(record, testrun):
   """Populate header-like info in testrun from record.
 
   Mostly obvious, some stuff comes from metadata, see docstring of
-  _TestRunFromTestRecord for details.
+  _test_run_from_test_record for details.
   """
   testrun.dut_serial = record.dut_id
   testrun.tester_name = record.station_id
@@ -122,14 +122,14 @@ def _PopulateHeader(record, testrun):
     attachment.value_binary = str(record.metadata['config'])
 
 
-def _EnsureUniqueParameterName(name, used_parameter_names):
+def _ensure_unique_parameter_name(name, used_parameter_names):
   while name in used_parameter_names:
     name += '_'  # Hack to avoid collisions between phases.
   used_parameter_names.add(name)
   return name
 
 
-def _AttachJson(record, testrun):
+def _attach_json(record, testrun):
   """Attach a copy of the JSON-ified record as an info parameter.
 
   Save a copy of the JSON-ified record in an attachment so we can access
@@ -147,10 +147,10 @@ def _AttachJson(record, testrun):
   # pylint: enable=no-member
 
 
-def _ExtractAttachments(phase, testrun, used_parameter_names):
+def _extract_attachments(phase, testrun, used_parameter_names):
   """Extract attachments, just copy them over."""
   for name, (data, mimetype) in sorted(phase.attachments.items()):
-    name = _EnsureUniqueParameterName(name, used_parameter_names)
+    name = _ensure_unique_parameter_name(name, used_parameter_names)
     testrun_param = testrun.info_parameters.add()
     testrun_param.name = name
     if isinstance(data, unicode):
@@ -164,7 +164,7 @@ def _ExtractAttachments(phase, testrun, used_parameter_names):
       # pylint: enable=no-member
 
 
-def _MangleMeasurement(name, value, measurement, mangled_parameters,
+def _mangle_measurement(name, value, measurement, mangled_parameters,
                        attachment_name):
   """Flatten parameters for backwards compatibility, watch for collisions.
 
@@ -203,7 +203,7 @@ def _MangleMeasurement(name, value, measurement, mangled_parameters,
     mangled_parameters[mangled_name] = mangled_param
 
 
-def _ExtractParameters(record, testrun, used_parameter_names):
+def _extract_parameters(record, testrun, used_parameter_names):
   """Extract parameters from phases.
 
   Generate mangled parameters afterwards so we give real measurements priority
@@ -217,9 +217,9 @@ def _ExtractParameters(record, testrun, used_parameter_names):
     testrun_phase.timing.start_time_millis = phase.start_time_millis
     testrun_phase.timing.end_time_millis = phase.end_time_millis
 
-    _ExtractAttachments(phase, testrun, used_parameter_names)
+    _extract_attachments(phase, testrun, used_parameter_names)
     for name, measurement in sorted(phase.measurements.items()):
-      tr_name = _EnsureUniqueParameterName(name, used_parameter_names)
+      tr_name = _ensure_unique_parameter_name(name, used_parameter_names)
       testrun_param = testrun.test_parameters.add()
       testrun_param.name = tr_name
       if measurement.outcome == measurements.Outcome.PASS:
@@ -265,7 +265,7 @@ def _ExtractParameters(record, testrun, used_parameter_names):
             'outcome': str(testrun_param.status), 'name': name,
             'dimensions': dims, 'value': value}, sort_keys=True)
         attachment.type = test_runs_pb2.MULTIDIM_JSON
-        _MangleMeasurement(
+        _mangle_measurement(
             name, value, measurement, mangled_parameters, attachment.name)
       if testrun_param.status == test_runs_pb2.FAIL:
         testrun_code = testrun.failure_codes.add()
@@ -278,17 +278,17 @@ def _ExtractParameters(record, testrun, used_parameter_names):
   return mangled_parameters
 
 
-def _AddMangledParameters(testrun, mangled_parameters, used_parameter_names):
+def _add_mangled_parameters(testrun, mangled_parameters, used_parameter_names):
   """Add any mangled parameters we generated from multidim measurements."""
   for mangled_name, mangled_param in sorted(mangled_parameters.items()):
-    if mangled_name != _EnsureUniqueParameterName(mangled_name, used_parameter_names):
+    if mangled_name != _ensure_unique_parameter_name(mangled_name, used_parameter_names):
       logging.warning('Mangled name %s in use by non-mangled parameter',
                       mangled_name)
     testrun_param = testrun.test_parameters.add()
     testrun_param.CopyFrom(mangled_param)
 
 
-def _AddLogLines(record, testrun):
+def _add_log_lines(record, testrun):
   """Copy log records over, this is a fairly straightforward mapping."""
   for log in record.log_records:
     testrun_log = testrun.test_logs.add()
@@ -312,7 +312,7 @@ def _AddLogLines(record, testrun):
     testrun_log.lineno = log.lineno
 
 
-def _TestRunFromTestRecord(record):
+def _test_run_from_test_record(record):
   """Create a TestRun proto from an OpenHTF TestRecord.
 
   Most fields are just copied over, some are pulled out of metadata (listed
@@ -329,13 +329,13 @@ def _TestRunFromTestRecord(record):
   Returns:  An instance of the TestRun proto for the given record.
   """
   testrun = test_runs_pb2.TestRun()
-  _PopulateHeader(record, testrun)
-  _AttachJson(record, testrun)
+  _populate_header(record, testrun)
+  _attach_json(record, testrun)
 
   used_parameter_names = set('OpenHTF_record.json')
-  mangled_parameters = _ExtractParameters(record, testrun, used_parameter_names)
-  _AddMangledParameters(testrun, mangled_parameters, used_parameter_names)
-  _AddLogLines(record, testrun)
+  mangled_parameters = _extract_parameters(record, testrun, used_parameter_names)
+  _add_mangled_parameters(testrun, mangled_parameters, used_parameter_names)
+  _add_log_lines(record, testrun)
   return testrun
 
 
@@ -365,7 +365,7 @@ class OutputToTestRunProto(output.OutputToFile):  # pylint: disable=too-few-publ
 
   @staticmethod
   def serialize_test_record(test_record):
-    return _TestRunFromTestRecord(test_record).SerializeToString()
+    return _test_run_from_test_record(test_record).SerializeToString()
 
 
 class UploadToMfgInspector(object):  # pylint: disable=too-few-public-methods
@@ -430,7 +430,7 @@ class UploadToMfgInspector(object):  # pylint: disable=too-few-public-methods
                keydata=json_data['private_key'],
                token_uri=json_data['token_uri'])
 
-  def UploadTestRun(self, testrun):
+  def upload_test_run(self, testrun):
     """Uploads the TestRun at a particular file.
 
     Args:
@@ -468,8 +468,8 @@ class UploadToMfgInspector(object):  # pylint: disable=too-few-public-methods
 
   def __call__(self, test_record):  # pylint: disable=invalid-name
 
-    testrun = _TestRunFromTestRecord(test_record)
-    self.UploadTestRun(testrun)
+    testrun = _test_run_from_test_record(test_record)
+    self.upload_test_run(testrun)
 
 
 class UploadOrOutput(object):
@@ -488,7 +488,7 @@ class UploadOrOutput(object):
                upload_fail_message='Upload to mfg-inspector failed!'):
     self._upload_fail_message = upload_fail_message
     self._UploadToMfgInspector = UploadToMfgInspector(user, keydata)
-    self._OutputToTestRunProto = OutputToTestRunProto(filename_pattern)
+    self.OutputToTestRunProto = OutputToTestRunProto(filename_pattern)
 
   def __call__(self, test_record):  # pylint: disable=invalid-name
     try:
