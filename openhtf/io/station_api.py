@@ -263,7 +263,7 @@ class RemoteTest(mutablerecords.Record('RemoteTest', [
       swapped_dict = {
           'status': state.status.name,
           'running_phase_state':
-              data.ConvertToBaseTypes(state.running_phase_state),
+              data.convert_to_base_types(state.running_phase_state),
           'test_record': xmlrpclib.Binary(pickle.dumps(state.test_record)),
       }
     return cached_state, swapped_dict
@@ -568,7 +568,7 @@ class StationApi(object):
         'test_record':
             xmlrpclib.Binary(pickle.dumps(state_dict['test_record'])),
         'running_phase_state':
-            data.ConvertToBaseTypes(state_dict['running_phase_state'])
+            data.convert_to_base_types(state_dict['running_phase_state'])
     }
 
   def get_test_state(self, test_uid, remote_record):
@@ -682,7 +682,7 @@ class StationApi(object):
         state_dict_counts['test_record'].phases)
     state_dict_counts['test_record'].log_records = len(
         state_dict_counts['test_record'].log_records)
-    state_dict_counts['running_phase_state'] = data.ConvertToBaseTypes(
+    state_dict_counts['running_phase_state'] = data.convert_to_base_types(
         state_dict_counts['running_phase_state'], tuple_type=list)
 
     # Deserialize the RemoteState fields for comparison.
