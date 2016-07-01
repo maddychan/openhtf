@@ -58,7 +58,7 @@ class TestExecutor(threads.KillableThread):
     # when shutting down, such as in response to a SIGINT.
     self._teardown_function = (
         teardown_function and
-        openhtf.PhaseDescriptor.WrapOrCopy(
+        openhtf.PhaseDescriptor.wrap_or_copy(
             teardown_function, timeout_s=conf.teardown_timeout_s))
         
     self._test_descriptor = test_descriptor
