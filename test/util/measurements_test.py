@@ -93,9 +93,9 @@ class TestMeasurements(unittest.TestCase):
   UPDATE_OUTPUT = False
 
   @classmethod
-  def setUpClass(cls):
-    conf.Load(station_id='measurements_test', station_api_port=None)
-    with open(_LocalFilename('measurements_record.pickle'), 'rb') as picklefile:
+  def set_up_class(cls):
+    conf.load(station_id='measurements_test', station_api_port=None)
+    with open(_local_filename('measurements_record.pickle'), 'rb') as picklefile:
       cls.record = pickle.load(picklefile)
 
   def test_measurements(self):
