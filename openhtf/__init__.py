@@ -448,14 +448,14 @@ class TestApi(collections.namedtuple('TestApi', [
         resets for every invokation of Execute() on an openhtf.Test).  This
         can be used for any test-wide state you need to persist across phases.
         Use this with caution, however, as it is not persisted in the output
-        TestRecord or displayed on the web frontend in any way.     
+        TestRecord or displayed on the web frontend in any way.
 
     test_record: A reference to the output TestRecord for the currently
         running openhtf.Test.  Direct access to this attribute is *strongly*
         discouraged, but provided as a catch-all for interfaces not otherwise
         provided by TestApi.  If you find yourself using this, please file a
         feature request for an alternative at:
-          https://github.com/google/openhtf/issues/new    
+          https://github.com/google/openhtf/issues/new
 
   Callable Attributes:
 
