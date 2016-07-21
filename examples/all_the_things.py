@@ -77,9 +77,9 @@ def set_measurements(test):
 
 
 @measures(
-    Measurement('unset_dims').WithDimensions(UOM['HERTZ']),
-    Measurement('dimensions').WithDimensions(UOM['HERTZ']),
-    Measurement('lots_of_dims').WithDimensions(
+    Measurement('unset_dims').with_dimensions(UOM['HERTZ']),
+    Measurement('dimensions').with_dimensions(UOM['HERTZ']),
+    Measurement('lots_of_dims').with_dimensions(
         UOM['HERTZ'], UOM['SECOND'], UOM['RADIAN']))
 def dimensions(test):
   for dim in range(5):

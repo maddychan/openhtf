@@ -18,7 +18,7 @@ p8
 sS'start_time_millis'
 p9
 copenhtf.util
-TimeMillis
+time_millis
 p10
 sS'outcome_details'
 p11
