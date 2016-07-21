@@ -118,6 +118,7 @@ INSTALL_REQUIRES = [
     'requests==2.9.1',
     'sockjs-tornado==1.0.3',
     'tornado==4.3',
+    'xlrd==1.0.0',
 ]
 
 

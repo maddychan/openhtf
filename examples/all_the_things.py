@@ -27,10 +27,11 @@ import openhtf
 
 from openhtf.io import output
 from openhtf.io.output import json_factory
-from openhtf.io.output import mfg_inspector 
+from openhtf.io.output import mfg_inspector
 from openhtf.names import *
 # Uncomment for mfg-inspector output, requires setup.py build_proto.
 #from openhtf.io.output import mfg_inspector
+from openhtf.util import units
 
 
 @plug(example=example_plug.ExamplePlug)
@@ -81,6 +82,7 @@ def set_measurements(test):
     Measurement('dimensions').with_dimensions(UOM['HERTZ']),
     Measurement('lots_of_dims').with_dimensions(
         UOM['HERTZ'], UOM['SECOND'], UOM['RADIAN']))
+
 def dimensions(test):
   for dim in range(5):
     test.measurements.dimensions[dim] = 1 << dim

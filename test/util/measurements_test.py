@@ -20,18 +20,16 @@ to False when done (there's a test to make sure you do this).
 """
 
 import cPickle as pickle
-import difflib
 import os.path
 import unittest
-
-from pprint import pformat
 
 import openhtf.conf as conf
 import openhtf.util as util
 
-from openhtf.io.output import json_factory
+from openhtf.io import output
 from openhtf.names import *
 from openhtf.util import data
+from openhtf.util import units
 
 # Fields that are considered 'volatile' for record comparison.
 _VOLATILE_FIELDS = {'start_time_millis', 'end_time_millis', 'timestamp_millis'}
@@ -81,7 +79,7 @@ def measure_dimensions(test):
 
 
 @measures('inline_kwargs', docstring='This measurement is declared inline!',
-          units=UOM['HERTZ'], validators=[util.validators.InRange(0, 10)])
+          units=units.HERTZ, validators=[util.validators.InRange(0, 10)])
 @measures('another_inline', docstring='Because why not?')
 def inline_phase(test):
   test.measurements.inline_kwargs = 15

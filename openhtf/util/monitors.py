@@ -36,7 +36,7 @@ Example:
 def CurrentMonitor(test, current_meter):
   return current_meter.GetReading()
 
-@monitors.monitors('current_draw', CurrentMonitor, units=units.UOM['AMPERE'])
+@monitors.monitors('current_draw', CurrentMonitor, units=units.AMPERE)
 def MyPhase(test):
   # Do some stuff for a while...
 
