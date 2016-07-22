@@ -16,10 +16,10 @@
 """A basic frontend server for OpenHTF using the HTTP frontend API.
 
 This server has two ways of knowing which stations to track:
-  
+
   (1) Discovery pings sent using OpenHTF's multicast station discovery service.
       These pings can be disabled via the '--disable-multicast' flag if desired.
-  
+
   (2) A list of stations provided via the server's config yaml file (specified
       via the '--config-file' flag). This list will be sought under the config
       key 'stations', which should contain a list of station entries:
@@ -278,7 +278,7 @@ def main(argv):
   logs.setup_logger()
 
   path = BUILD_PATH if os.path.exists(BUILD_PATH) else PREBUILT_PATH
-  
+
   settings = {
       'template_path': path,
       'static_path': path,

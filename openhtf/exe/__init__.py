@@ -115,7 +115,7 @@ class TestExecutor(threads.KillableThread):
       # self._lock while we do this, or else calls to stop() will deadlock.
       # Create plugs while we're here because that may also take a while and
       # we don't want to hold self._lock while we wait.
-      self.test_state.TestStarted(self._wait_for_test_start())
+      self.test_state.test_started(self._wait_for_test_start())
       self.test_state.plug_manager.initialize_plugs()
 
       with self._lock:
@@ -159,7 +159,7 @@ class TestExecutor(threads.KillableThread):
     try:
       for phase_outcome in executor.execute_phases(
           self._test_descriptor.phases, self._teardown_function):
-        if self.test_state.SetStatusFromPhaseOutcome(phase_outcome):
+        if self.test_state.set_status_from_phase_outcome(phase_outcome):
           break
       else:
         self.test_state.finalize()
