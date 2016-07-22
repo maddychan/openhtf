@@ -170,7 +170,7 @@ class StationStore(threading.Thread):
           if (hostport, test_uid) not in self._watchers:
             self._watchers[hostport, test_uid] = TestWatcher(
                 hostport, remote_test, self._on_update_callback)
-      except (socket.error, station_api.StationUnreachableError) as e:
+      except (socket.error, station_api.StationUnreachableError):
         _LOG.debug('Station at %s is unreachable.', hostport)
 
     if self._on_discovery_callback:

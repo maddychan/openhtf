@@ -115,8 +115,8 @@ class Station(object):
         self.station_id = station_id
         self.state = state
         return True
-    except requests.RequestException as e:
-      _LOG.debug('Station (%s) unreachable: %s', self.hostport, e)
+    except requests.RequestException as exception:
+      _LOG.debug('Station (%s) unreachable: %s', self.hostport, exception)
       self.state = None
     except KeyError:
       _LOG.warning('Malformed station state response from (%s): %s',
@@ -131,8 +131,8 @@ class Station(object):
     """
     try:
       requests.post('http://%s:%s' % self.hostport, data=message)
-    except requests.RequestException as e:
-      _LOG.warning('Error notifying station (%s): %s', self.hostport, e)
+    except requests.RequestException as exception:
+      _LOG.warning('Error notifying station (%s): %s', self.hostport, exception)
 
   def add_to_history(self, json_record):
     """Add a test record to the history for this station."""
