@@ -249,7 +249,7 @@ class PromptHandler(tornado.web.RequestHandler):
     self.store[host, port].notify(msg)
 
 
-def main(argv):
+def main():
   """Start the frontend."""
   parser = argparse.ArgumentParser(description='OpenHTF web frontend server.',
                                    parents=[conf.ARG_PARSER],

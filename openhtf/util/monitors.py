@@ -136,7 +136,7 @@ def monitors(measurement_name, monitor_func, units=None, poll_interval_ms=1000):
     @plugs.plug(update_kwargs=False, **monitor_plugs)
     @measurements.measures(
         measurements.Measurement(measurement_name).with_units(
-            units).with_dimensions(uom.UOM['MILLISECOND']))
+            units).with_dimensions(uom.ALL_UNITS['MILLISECOND']))
     @functools.wraps(phase_desc.func)
     def monitored_phase_func(test_state, *args, **kwargs):
       # Start monitor thread, it will run monitor_desc periodically.
