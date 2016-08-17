@@ -61,12 +61,55 @@ class PromptUnansweredError(Exception):
 Prompt = collections.namedtuple('Prompt', 'id message text_input')
 
 
-class PromptManager(object):
-  """Top level abstraction for OpenHTF user prompt functionality.
+class ConsolePrompt(threading.Thread):
+  """Thread that displays a prompt to the console and waits for a response.
 
-  Only one active prompt is allowed at a time, and an ID is stored in order to
-  ignore late responses to previous prompts.
+  Args:
+    prompt_id: The prompt manager's id associated with this prompt.
   """
+  def __init__(self, message, callback):
+    super(ConsolePrompt, self).__init__()
+    self.daemon = True
+    self._message = message
+    self._callback = callback
+    self._stopped = False
+
+  def Stop(self):
+    """Mark this ConsolePrompt as stopped.
+
+    If this prompt was already stopped, do nothing.
+    """
+    if not self._stopped:
+      print "Nevermind; prompt was answered from elsewhere."
+      self._stopped = True
+
+  def run(self):
+    """Main logic for this thread to execute."""
+    try:
+      if platform.system() == 'Windows':
+        # Windows doesn't support file-like objects for select(), so fall back
+        # to raw_input().
+        self._callback(raw_input(self._message + '\n\r'))
+      else:
+        # First, display the prompt to the console.
+        print self._message
+
+        # Before reading, clear any lingering buffered terminal input.
+        termios.tcflush(sys.stdin, termios.TCIFLUSH)
+
+        while not self._stopped:
+          inputs, _, _ = select.select([sys.stdin], [], [], 0.001)
+          for stream in inputs:
+            if stream is sys.stdin:
+              response = sys.stdin.readline().rstrip()
+              self._callback(response)
+              return
+    finally:
+      self._stopped = True
+
+
+class UserInput(plugs.BasePlug):
+
   def __init__(self):
     self.prompt = None
     self._response = None
@@ -120,79 +163,13 @@ class PromptManager(object):
       return False  # The response was not used.
 
 
-# Module-level instance to achieve shared prompt state.
-PROMPT_MANAGER = PromptManager()
-
-
-class ConsolePrompt(threading.Thread):
-  """Thread that displays a prompt to the console and waits for a response.
-
-  Args:
-    prompt_id: The prompt manager's id associated with this prompt.
-  """
-  def __init__(self, message, callback):
-    super(ConsolePrompt, self).__init__()
-    self.daemon = True
-    self._message = message
-    self._callback = callback
-    self._stopped = False
-
-  def Stop(self):
-    """Mark this ConsolePrompt as stopped.
-
-    If this prompt was already stopped, do nothing.
-    """
-    if not self._stopped:
-      print "Nevermind; prompt was answered from elsewhere."
-      self._stopped = True
-
-  def run(self):
-    """Main logic for this thread to execute."""
-    try:
-      if platform.system() == 'Windows':
-        # Windows doesn't support file-like objects for select(), so fall back
-        # to raw_input().
-        self._callback(raw_input(self._message + '\n\r'))
-      else:
-        # First, display the prompt to the console.
-        print self._message
-
-        # Before reading, clear any lingering buffered terminal input.
-        termios.tcflush(sys.stdin, termios.TCIFLUSH)
-
-        while not self._stopped:
-          inputs, _, _ = select.select([sys.stdin], [], [], 0.001)
-          for stream in inputs:
-            if stream is sys.stdin:
-              response = sys.stdin.readline().rstrip()
-              self._callback(response)
-              return
-    finally:
-      self._stopped = True
-
-
-class UserInput(plugs.BasePlug):
-  """Get user input from inside test phases."""
-  def prompt(self, message, text_input=False, timeout_s=None):
-    return PROMPT_MANAGER.DisplayPrompt(
-        message, text_input=text_input, timeout_s=timeout_s)
-
-
 def prompt_for_test_start(
     message='Provide a DUT ID in order to start the test.', text_input=True,
     timeout_s=60*60*24):
   """Make a test start trigger based on prompting the user for input."""
   def trigger():  # pylint: disable=missing-docstring
-    return PROMPT_MANAGER.DisplayPrompt(
+    return UserInput().DisplayPrompt(
         message, text_input=text_input, timeout_s=timeout_s)
   return trigger
 
 
-def get_prompt_manager():
-  """Return the shared prompt manager.
-
-  The prompter returned is a module-level instance. Thus rather than implement
-  our own Singleton or Borg or DeleBorg, we take advantage of the fact that
-  modules are already effectively singletons.
-  """
-  return PROMPT_MANAGER

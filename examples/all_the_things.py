@@ -54,7 +54,7 @@ def example_monitor(example):
 def hello_world(test, example, prompts):
   """A hello world test phase."""
   test.logger.info('Hello World!')
-  test.measurements.widget_type = prompts.prompt(
+  test.measurements.widget_type = prompts.DisplayPrompt(
       'What\'s the widget type?', text_input=True)
   if test.measurements.widget_type == 'raise':
     raise Exception()

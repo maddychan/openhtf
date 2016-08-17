@@ -30,7 +30,7 @@ TestStart:
 import logging
 import time
 
-from openhtf.io import user_input
+from openhtf.plugs import user_input
 
 _LOG = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ def PromptForTestStart(message='Provide a DUT ID in order to start the test.',
                        text_input=True, timeout_s=60*60*24):
   """Make a test start trigger based on prompting the user for input."""
   def trigger():  # pylint: disable=missing-docstring
-    prompt_manager = user_input.get_prompt_manager()
+    prompt_manager = user_input.UserInput()
     return prompt_manager.DisplayPrompt(
         message, text_input=text_input, timeout_s=timeout_s)
   return trigger
