@@ -169,7 +169,7 @@ class StationStore(threading.Thread):
         for test_uid, remote_test in station.tests.iteritems():
           if (hostport, test_uid) not in self._watchers:
             self._watchers[hostport, test_uid] = TestWatcher(
-                hostport, remote_test,self._on_update_callback)
+                hostport, remote_test, self._on_update_callback)
       except station_api.StationUnreachableError:
         _LOG.debug('Station at %s is unreachable.', hostport)
     
@@ -386,6 +386,8 @@ class WebGuiServer(tornado.web.Application):
           in plugs.RemotePlug.discover(hostport.host, plugs_port)
           if not self.has_handler_for_url(_make_sockjs_url(rel_url))
       )
+    for a in self.handlers:
+      print(a)
 
   def start(self):
     """Start the web server."""

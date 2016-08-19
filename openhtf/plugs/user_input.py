@@ -148,6 +148,9 @@ class UserInput(plugs.BasePlug):
         raise PromptUnansweredError
       return self._response
 
+  def get_state(self):
+    return self._asdict() #json.JSONEncoder().encode(self._asdict())
+
   def Respond(self, prompt_id, response):
     """Respond to the prompt that has the given ID.
 
